@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>6c44f883-85e8-45db-b4e2-71ce7d7699d1</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IdentityModel" Version="6.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.22" />
+    <PackageReference Include="Serilog" Version="3.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ContactManager.Application\ContactManager.Application.csproj" />
+    <ProjectReference Include="..\ContactManager.Domain\ContactManager.Domain.csproj" />
+    <ProjectReference Include="..\ContactManager.Infrastructure\ContactManager.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

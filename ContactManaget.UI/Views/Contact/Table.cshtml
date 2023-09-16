@@ -1,0 +1,55 @@
+﻿@model IEnumerable<ContactManager.Domain.Entities.ContactEntity>
+
+@{
+    ViewData["Title"] = "Table";
+}
+
+<h1>Table</h1>
+
+@if(Model != null && Model.Count() > 0)
+{
+    <table id="employeeTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Date of Birth</th>
+                <th>Married</th>
+                <th>Phone</th>
+                <th>Salary</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var contact in Model)
+            {
+                <tr>
+                    <th>
+                        @contact.Name
+                    </th>
+                    <th>
+                        @contact.DateOfBirth
+                    </th>
+                     <th>
+                        @contact.Married
+                    </th>
+                     <th>
+                        @contact.Phone
+                    </th>
+                    <th>
+                        @contact.Salary
+                    </th>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <form method="post" enctype="multipart/form-data" action="/Contact/Add">
+        <div class="form-group">
+            <label for="file">Upload CSV File:</label>
+            <input type="file" name="file" id="file" accept=".csv" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+}
