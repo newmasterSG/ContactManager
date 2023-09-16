@@ -11,37 +11,35 @@
     <table id="employeeTable">
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Date of Birth</th>
-                <th>Married</th>
-                <th>Phone</th>
-                <th>Salary</th>
+                <th class="mr-4">Name</th>
+                <th class="mr-4">Date of Birth</th>
+                <th class="mr-4">Married</th>
+                <th class="mr-4">Phone</th>
+                <th class="mr-4">Salary</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
             @foreach(var contact in Model)
             {
-                <tr>
-                    <th>
-                        @contact.Name
-                    </th>
-                    <th>
-                        @contact.DateOfBirth
-                    </th>
-                     <th>
-                        @contact.Married
-                    </th>
-                     <th>
-                        @contact.Phone
-                    </th>
-                    <th>
-                        @contact.Salary
-                    </th>
+                <tr data-id="@contact.Id">
+                    <td class="mr-4" contenteditable="false">@contact.Name</td>
+                    <td class="mr-4" contenteditable="false">@contact.DateOfBirth</td>
+                    <td class="mr-4" contenteditable="false">@contact.Married</td>
+                    <td class="mr-4" contenteditable="false">@contact.Phone</td>
+                    <td class="mr-4" contenteditable="false">@contact.Salary</td>
+                    <td>
+                        <button class="edit-btn">Edit</button>
+                        <button class="delete-btn">Delete</button>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
+
+    <input type="text" id="nameFilter" placeholder="Filter by Name">
+    <input type="text" id="dobFilter" placeholder="Filter by Date of Birth">
+    <input type="text" id="phoneFilter" placeholder="Filter by Phone">
 }
 else
 {
@@ -53,3 +51,126 @@ else
         <button type="submit" class="btn btn-primary">Upload</button>
     </form>
 }
+
+<script>
+    // Reference to the table and rows
+    const table = document.getElementById('employeeTable');
+    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+    // Filter function
+    function filterTable() {
+        const nameFilter = document.getElementById('nameFilter').value.toLowerCase();
+        const dobFilter = document.getElementById('dobFilter').value.toLowerCase();
+        const phoneFilter = document.getElementById('phoneFilter').value.toLowerCase();
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const name = row.cells[0].textContent.toLowerCase();
+            const dob = row.cells[1].textContent.toLowerCase();
+            const phone = row.cells[3].textContent.toLowerCase();
+
+            // Check if the row matches the filter criteria
+            if (name.includes(nameFilter) && dob.includes(dobFilter) && phone.includes(phoneFilter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    }
+
+    // Attach the filter function to the filter inputs
+    document.getElementById('nameFilter').addEventListener('input', filterTable);
+    document.getElementById('dobFilter').addEventListener('input', filterTable);
+    document.getElementById('phoneFilter').addEventListener('input', filterTable);
+
+    // Inline editing
+    table.addEventListener('click', function (e) {
+        const target = e.target;
+        if (target.tagName === 'TD' && target.parentElement) {
+            const row = target.parentElement;
+            const cells = row.cells;
+            if (target !== cells[cells.length - 1]) {
+                if (!target.isContentEditable) {
+                    target.contentEditable = 'true';
+                    target.focus();
+                }
+            }
+        }
+    });
+
+    table.addEventListener('click', function (e) {
+        const target = e.target;
+        if (target.tagName === 'BUTTON') {
+            const row = target.parentElement.parentElement;
+            const cells = row.cells;
+            const id = row.getAttribute('data-id');
+
+            if (target.classList.contains('edit-btn')) {
+                let newName = cells[0].textContent;
+                let newDateOfBirth = cells[1].textContent;
+                let newMarried = cells[2].textContent === 'true';
+                let newPhone = cells[3].textContent;
+                let newSalary = cells[4].textContent;
+
+                var contact = {
+                    Id: parseInt(id),
+                    Name: newName,
+                    DateOfBirth: newDateOfBirth,
+                    Married: newMarried,
+                    Phone: newPhone,
+                    Salary: parseFloat(newSalary)
+                };
+
+                var contactJson = JSON.stringify(contact);
+                console.log(contactJson);
+
+                fetch('/Contact/Update', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: contactJson
+                })
+                .then(response => {
+                        if (response.ok) {
+                            
+                        } else {
+                            
+                        }
+                })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            } else if (target.classList.contains('delete-btn')) {
+                fetch(`/Contact/DeleteById/${parseInt(id)}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            row.remove();
+                        } else {
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        }
+    });
+
+    // Listen for the blur event (when the cell loses focus)
+    table.addEventListener('blur', function (e) {
+        const target = e.target;
+        if (target.tagName === 'TD' && target.parentElement) {
+            // Disable editing when the cell loses focus
+            target.removeAttribute('contentEditable');
+        }
+    });
+
+    table.addEventListener('keydown', function (e) {
+        const target = e.target;
+        if (e.key === 'Enter' && target.isContentEditable) {
+            target.removeAttribute('contentEditable');
+        }
+    });
+</script>

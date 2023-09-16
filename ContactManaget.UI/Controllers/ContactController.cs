@@ -39,7 +39,6 @@ namespace ContactManaget.UI.Controllers
 
             if (file == null || file.Length == 0)
             {
-                // Handle the case when the file is null or empty
                 ModelState.AddModelError("File", "Please select a valid CSV file.");
                 return View("Table", _contactService.GetByUserId(user.Id));
             }
@@ -78,7 +77,7 @@ namespace ContactManaget.UI.Controllers
             return Ok(contacts);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete]
         public async Task<IActionResult> DeleteById(int id)
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
@@ -96,6 +95,8 @@ namespace ContactManaget.UI.Controllers
         public async Task<IActionResult> Update([FromBody] ContactEntity contact)
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
+
+            //contact.User = user;
 
             await _contactService.UpdateUrlAsync(contact);
 
