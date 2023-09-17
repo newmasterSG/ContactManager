@@ -1,24 +1,11 @@
-using ContactManager.Application.InterfacesServices;
-using ContactManager.Application.Services;
 using ContactManager.Domain.Entities;
-using ContactManager.Domain.Interfaces;
 using ContactManager.Infrastructure.Context;
-using ContactManager.Infrastructure.Email;
-using ContactManager.Infrastructure.Email.Options;
-using ContactManager.Infrastructure.Repository;
 using ContactManaget.UI.Config;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Events;
-using System.Net;
 using System.Security.Claims;
-using System.Text;
 using TelegramSink;
 
 namespace ContactManaget.UI
