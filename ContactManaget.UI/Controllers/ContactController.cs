@@ -8,6 +8,7 @@ using System.Text;
 
 namespace ContactManaget.UI.Controllers
 {
+    [Authorize]
     public class ContactController : Controller
     {
         private readonly IContactService _contactService;
