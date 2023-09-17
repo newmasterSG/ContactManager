@@ -51,6 +51,7 @@ namespace ContactManaget.UI.Controllers
 
                     if (result.Succeeded)
                     {
+                        _logger.LogInformation("User is logged");
                         return RedirectToAction("Index", "Home");
                     }
                 }

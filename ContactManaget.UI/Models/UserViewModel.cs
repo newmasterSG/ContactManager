@@ -3,23 +3,6 @@ using System.Xml.Linq;
 
 namespace ContactManaget.UI.Models
 {
-    public class UserModelValid
-    {
-        [Required]
-        [Display(Name = "Имя пользователя")]
-        public string Username { get; set; }
-
-        [Required]
-        [DataType(DataType.Password)]
-        [Display(Name = "Пароль")]
-        public string Password { get; set; }
-
-        [Required]
-        [DataType(DataType.EmailAddress)]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
-    }
-
     public class RegisterViewModel
     {
         [Required]
@@ -29,6 +12,8 @@ namespace ContactManaget.UI.Models
 
         [Required]
         [DataType(DataType.Password)]
+        [MinLength(8, ErrorMessage = "Password must be at least 8 characters long")]
+        [MaxLength(20, ErrorMessage = "Password must not exceed 20 characters")]
         [Display(Name = "Password")]
         public string Password { get; set; }
 

@@ -19,6 +19,7 @@ using Serilog.Events;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using TelegramSink;
 
 namespace ContactManaget.UI
 {
@@ -27,8 +28,16 @@ namespace ContactManaget.UI
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
             var configuration = builder.Configuration;
+
+            //I am using user secret for telegram bot, u can you own bot with chatID
+            Log.Logger = new LoggerConfiguration().MinimumLevel.Override("Microsoft", LogEventLevel.Error)
+           .MinimumLevel.Override("System", LogEventLevel.Error)
+           .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", LogEventLevel.Error)
+           .WriteTo.TeleSink(configuration["TelegramBot:BotToken"],
+           configuration["TelegramBot:ChatID"])
+           .CreateLogger();
+
             var connectionString = configuration["ConnectionStrings:DefaultConnection"];
             builder.Services.AddDbContext<ContactDbContext>(options =>
                 options.UseSqlServer(connectionString).EnableSensitiveDataLogging());
