@@ -16,3 +16,8 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+th, td {
+    border-bottom: 1px solid #ddd;
+    padding-right: 10px;
+}

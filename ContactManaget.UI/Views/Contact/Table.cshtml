@@ -8,29 +8,29 @@
 
 @if(Model != null && Model.Count() > 0)
 {
-    <table id="employeeTable">
+    <table id="employeeTable" style="margin-bottom: 10px;">
         <thead>
             <tr>
-                <th class="mr-4">Name</th>
-                <th class="mr-4">Date of Birth</th>
-                <th class="mr-4">Married</th>
-                <th class="mr-4">Phone</th>
-                <th class="mr-4">Salary</th>
+                <th class="pr-7">Name</th>
+                <th class="pr-7">Date of Birth</th>
+                <th class="pr-7">Married</th>
+                <th class="pr-7">Phone</th>
+                <th class="pr-7">Salary</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
             @foreach(var contact in Model)
             {
-                <tr data-id="@contact.Id">
-                    <td class="mr-4" contenteditable="false">@contact.Name</td>
-                    <td class="mr-4" contenteditable="false">@contact.DateOfBirth.ToShortDateString()</td>
-                    <td class="mr-4" contenteditable="false">@contact.Married</td>
-                    <td class="mr-4" contenteditable="false">@contact.Phone</td>
-                    <td class="mr-4" contenteditable="false">@contact.Salary</td>
+                <tr class="mb-5" data-id="@contact.Id">
+                    <td class="pr-7" contenteditable="false">@contact.Name</td>
+                    <td class="pr-7" contenteditable="false">@contact.DateOfBirth.ToShortDateString()</td>
+                    <td class="pr-7" contenteditable="false">@contact.Married</td>
+                    <td class="pr-7" contenteditable="false">@contact.Phone</td>
+                    <td class="pr-7" contenteditable="false">@contact.Salary</td>
                     <td>
-                        <button class="edit-btn">Edit</button>
-                        <button class="delete-btn">Delete</button>
+                        <button class="btn btn-outline-secondary edit-btn" style="margin-left: 5px;">Edit</button>
+                        <button class="btn btn-outline-secondary delete-btn" style="margin-left: 5px;">Delete</button>
                     </td>
                 </tr>
             }
