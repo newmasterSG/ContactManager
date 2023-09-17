@@ -1,12 +1,13 @@
-﻿using ContactManager.Application.InterfacesServices;
+﻿using ContactManager.Application.DTO;
+using ContactManager.Application.InterfacesServices;
 using ContactManager.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 
 namespace ContactManaget.UI.Controllers
 {
-    [Authorize]
     public class ContactController : Controller
     {
         private readonly IContactService _contactService;
@@ -91,12 +92,11 @@ namespace ContactManaget.UI.Controllers
             return Ok();
         }
 
-        [HttpPatch]
-        public async Task<IActionResult> Update([FromBody] ContactEntity contact)
+        public async Task<IActionResult> Update([FromBody] ContactDTO contact)
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
-            //contact.User = user;
+            contact.User = user;
 
             await _contactService.UpdateUrlAsync(contact);
 

@@ -24,7 +24,7 @@
             {
                 <tr data-id="@contact.Id">
                     <td class="mr-4" contenteditable="false">@contact.Name</td>
-                    <td class="mr-4" contenteditable="false">@contact.DateOfBirth</td>
+                    <td class="mr-4" contenteditable="false">@contact.DateOfBirth.ToShortDateString()</td>
                     <td class="mr-4" contenteditable="false">@contact.Married</td>
                     <td class="mr-4" contenteditable="false">@contact.Phone</td>
                     <td class="mr-4" contenteditable="false">@contact.Salary</td>
@@ -112,24 +112,23 @@ else
                 let newPhone = cells[3].textContent;
                 let newSalary = cells[4].textContent;
 
-                var contact = {
-                    Id: parseInt(id),
-                    Name: newName,
-                    DateOfBirth: newDateOfBirth,
-                    Married: newMarried,
-                    Phone: newPhone,
-                    Salary: parseFloat(newSalary)
+                var contact1 = {
+                    id: parseInt(id),
+                    name: newName,
+                    dateOfBirth: newDateOfBirth,
+                    married: newMarried,
+                    phone: newPhone,
+                    salary:newSalary,
                 };
 
-                var contactJson = JSON.stringify(contact);
-                console.log(contactJson);
+                var contact = JSON.stringify(contact1);
 
                 fetch('/Contact/Update', {
-                    method: 'PATCH',
+                    method: 'POST',
+                    body: contact,
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: contactJson
                 })
                 .then(response => {
                         if (response.ok) {
@@ -141,7 +140,8 @@ else
                     .catch(error => {
                         console.error('Error:', error);
                     });
-            } else if (target.classList.contains('delete-btn')) {
+            } 
+            else if (target.classList.contains('delete-btn')) {
                 fetch(`/Contact/DeleteById/${parseInt(id)}`, {
                     method: 'DELETE'
                 })

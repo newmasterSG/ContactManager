@@ -1,4 +1,5 @@
-﻿using ContactManager.Application.InterfacesServices;
+﻿using ContactManager.Application.DTO;
+using ContactManager.Application.InterfacesServices;
 using ContactManager.Domain.Entities;
 using ContactManager.Domain.Interfaces;
 using ContactManager.Infrastructure.Context;
@@ -6,6 +7,7 @@ using ContactManager.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -48,9 +50,22 @@ namespace ContactManager.Application.Services
             return _context.GetByUserIdAsync(userId);
         }
 
-        public async Task UpdateUrlAsync(ContactEntity contact)
+        public async Task UpdateUrlAsync(ContactDTO contact)
         {
-            await _context.UpdateAsync(contact);
+            if(DateTime.TryParse(contact.DateOfBirth, out DateTime parsedDate) && Decimal.TryParse(contact.Salary, out decimal salary))
+            {
+                await _context.UpdateAsync(new ContactEntity
+                {
+                    DateOfBirth = parsedDate,
+                    Phone = contact.Phone,
+                    Id = contact.Id,    
+                    Married = contact.Married,
+                    Name = contact.Name,
+                    Salary = salary,
+                    User = contact.User
+                });
+            }
+           
         }
     }
 }

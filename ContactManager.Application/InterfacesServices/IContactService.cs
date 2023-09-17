@@ -1,4 +1,5 @@
-﻿using ContactManager.Domain.Entities;
+﻿using ContactManager.Application.DTO;
+using ContactManager.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace ContactManager.Application.InterfacesServices
         Task<ContactEntity?> GetByIdAsync(int Id);
         Task<IEnumerable<ContactEntity>> GetAllAsync();
         Task<ContactEntity?> CreateAsync(ContactEntity contact);
-        Task UpdateUrlAsync(ContactEntity contact);
+        Task UpdateUrlAsync(ContactDTO contact);
         Task DeleteAsync(int id);
     }
 }
