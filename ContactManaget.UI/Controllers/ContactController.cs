@@ -92,6 +92,7 @@ namespace ContactManaget.UI.Controllers
             return Ok();
         }
 
+        [HttpPost]
         public async Task<IActionResult> Update([FromBody] ContactDTO contact)
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);

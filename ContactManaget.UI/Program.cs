@@ -6,6 +6,7 @@ using ContactManager.Infrastructure.Context;
 using ContactManager.Infrastructure.Email;
 using ContactManager.Infrastructure.Email.Options;
 using ContactManager.Infrastructure.Repository;
+using ContactManaget.UI.Config;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.CookiePolicy;
@@ -18,8 +19,6 @@ using Serilog.Events;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
-using static Dropbox.Api.Files.MediaInfo;
-using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace ContactManaget.UI
 {
@@ -31,57 +30,12 @@ namespace ContactManaget.UI
 
             var configuration = builder.Configuration;
             var connectionString = configuration["ConnectionStrings:DefaultConnection"];
-            Console.Out.WriteLineAsync(connectionString);
             builder.Services.AddDbContext<ContactDbContext>(options =>
                 options.UseSqlServer(connectionString).EnableSensitiveDataLogging());
 
             builder.Services.AddControllersWithViews();
 
-            builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
-
-            builder.Services.AddTransient<EmailSender, SmtpEmailSender>();
-            builder.Services.AddScoped<IContactRepository, ContactRepository>();
-            builder.Services.AddScoped<ICsvService, CsvService>();
-            builder.Services.AddScoped<IContactService, ContactService>();
-
-            //Config Sign Up Settings
-            builder.Services.AddIdentity<UserEntity, IdentityRole>(options =>
-            {
-                options.User.AllowedUserNameCharacters += " ";
-                options.SignIn.RequireConfirmedEmail = Boolean.Parse(configuration["RegistrationSettings:RequireConfirmedEmail"]);
-                options.Password.RequireDigit = Boolean.Parse(configuration["RegistrationSettings:RequireDigit"]);
-                options.Password.RequireLowercase = Boolean.Parse(configuration["RegistrationSettings:RequireLowercase"]);
-                options.Password.RequireUppercase = Boolean.Parse(configuration["RegistrationSettings:RequireUppercase"]);
-                options.Password.RequiredLength = int.Parse(configuration["RegistrationSettings:RequiredLength"]);
-                options.Password.RequireNonAlphanumeric = Boolean.Parse(configuration["RegistrationSettings:RequireNonAlphanumeric"]);
-            }).AddEntityFrameworkStores<ContactDbContext>().AddDefaultTokenProviders();
-
-            builder.Services.AddAuthentication(option =>
-            {
-                option.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-           .AddCookie(options =>
-           {
-               options.Cookie.HttpOnly = true;
-               options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-               options.SlidingExpiration = true;
-           })
-           .AddJwtBearer(options =>
-           {
-               options.SaveToken = true;
-               options.TokenValidationParameters = new TokenValidationParameters
-               {
-                   RequireExpirationTime = Boolean.Parse(configuration["JwtSettings:RequireExpirationTime"]),
-                   ValidateIssuer = Boolean.Parse(configuration["JwtSettings:ValidateIssuer"]),
-                   ValidateAudience = Boolean.Parse(configuration["JwtSettings:ValidateAudience"]),
-                   ValidateLifetime = Boolean.Parse(configuration["JwtSettings:ValidateLifetime"]),
-                   ValidateIssuerSigningKey = Boolean.Parse(configuration["JwtSettings:ValidateIssuerSigningKey"]),
-                   ValidIssuer = configuration["JwtSettings:Issuer"],
-                   ValidAudience = configuration["JwtSettings:Audience"],
-                   IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:SecurityKey"]))
-               };
-           });
+            builder.Services.AddOwnDependency(configuration);
 
             var app = builder.Build();
 
@@ -93,8 +47,18 @@ namespace ContactManaget.UI
 
             app.UseHttpsRedirection();
 
+            app.Use(async (context, next) =>
+            {
+                var token = context.Request.Cookies["access_token"];
+                if (!string.IsNullOrEmpty(token))
+                    context.Request.Headers.Add("Authorization", "Bearer " + token);
+
+                await next();
+            });
+
             app.UseStaticFiles();
 
+            //Seeding Data
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetService<ContactDbContext>();
@@ -107,9 +71,6 @@ namespace ContactManaget.UI
 
                 var roles = new[] { "Admin", "Manager", "Buyer" };
 
-                string email = "testing.project.ts@gmail.com";
-                string userPassword = "Eg.1234";
-
                 foreach (var role in roles)
                 {
                     if (!await roleManager.RoleExistsAsync(role))
@@ -118,16 +79,16 @@ namespace ContactManaget.UI
                     }
                 }
 
-                if (await userManager.FindByEmailAsync(email) == null)
+                if (await userManager.FindByEmailAsync(configuration["DefaultUser:email"]) == null)
                 {
                     UserEntity adminUser = new UserEntity
                     {
-                        UserName = email,
-                        Email = email,
-                        EmailConfirmed = true,
+                        UserName = configuration["DefaultUser:email"],
+                        Email = configuration["DefaultUser:password"],
+                        EmailConfirmed = Boolean.TryParse(configuration["DefaultUser:emailConfirmed"], out bool p),
                     };
 
-                    IdentityResult result = await userManager.CreateAsync(adminUser, userPassword);
+                    IdentityResult result = await userManager.CreateAsync(adminUser, configuration["DefaultUser:password"]);
 
                     if (result.Succeeded)
                     {

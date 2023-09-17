@@ -37,7 +37,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="SignUp">SignUp</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">SignUp</a>
                             </li>
                         </ul>
                     }
@@ -45,7 +45,13 @@
                     {
                         <ul class="navbar-nav flex-grow-1 ms-auto">
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="SignOut">Logout</a>
+                                <form asp-action="LogOut" asp-controller="Account" method="post">
+                                    @{
+                                        var returnUrl = Context.Request.Path + Context.Request.QueryString;
+                                     }
+                                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                    <button type="submit" class="btn btn-secondary">Log out</button>
+                                </form>
                             </li>
                         </ul>
                     }

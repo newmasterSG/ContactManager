@@ -1,8 +1,11 @@
 ﻿using ContactManager.Domain.Entities;
 using ContactManager.Domain.Interfaces;
 using ContactManaget.UI.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ContactManaget.UI.Controllers
 {
@@ -62,6 +65,68 @@ namespace ContactManaget.UI.Controllers
         public IActionResult Register()
         {
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (await _userManager.FindByEmailAsync(model.Email) is null)
+                {
+                    var user = new UserEntity { UserName = model.Email, Email = model.Email };
+                    var result = await _userManager.CreateAsync(user, model.Password);
+
+                    if (result.Succeeded)
+                    {
+                        await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Buyer"));
+                        await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, user.UserName));
+                        await _userManager.AddToRoleAsync(user, "Buyer");
+
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+
+                        // Generate email confirmation token
+                        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                        // Generate a confirmation link
+                        var confirmationLink = Url.Action("EmailConfirmed", "Account", new { userId = user.Id, token }, Request.Scheme);
+
+                        await _emailSender.SendEmailAsync(model.Email, "", "Confirm Your Email",
+                            confirmationLink, false);
+
+                        return View("AccountCreated");
+
+                    }
+
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("", $"User has already created");
+                    return View();
+                }
+            }
+
+            return View(model);
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LogOut(string returnUrl = null)
+        {
+            await _signInManager.SignOutAsync();
+            if (returnUrl != null)
+            {
+                return LocalRedirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
         }
     }
 }
